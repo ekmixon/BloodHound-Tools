@@ -29,13 +29,20 @@ class Messages():
         print("================================================================")
 
     def input_default(self, prompt, default):
-        return input("%s [%s] " % (prompt, default)) or default
+        return input(f"{prompt} [{default}] ") or default
 
     def input_yesno(self, prompt, default):
-        temp = input(prompt + " " + ("Y" if default else "y") + "/" + ("n" if default else "N") + " ")
-        if temp == "y" or temp == "Y":
+        temp = input(
+            f"{prompt} "
+            + ("Y" if default else "y")
+            + "/"
+            + ("n" if default else "N")
+            + " "
+        )
+
+        if temp in ["y", "Y"]:
             return True
-        elif temp == "n" or temp == "N":
+        elif temp in ["n", "N"]:
             return False
         return default
 
@@ -98,10 +105,10 @@ class MainMenu(cmd.Cmd):
 
     def do_dbconfig(self, args):
         print("Current Settings:")
-        print("DB Url: {}".format(self.url))
-        print("DB Username: {}".format(self.username))
-        print("DB Password: {}".format(self.password))
-        print("Use encryption: {}".format(self.use_encryption))
+        print(f"DB Url: {self.url}")
+        print(f"DB Username: {self.username}")
+        print(f"DB Password: {self.password}")
+        print(f"Use encryption: {self.use_encryption}")
         print("")
         self.url = self.m.input_default("Enter DB URL", self.url)
         self.username = self.m.input_default(
@@ -113,10 +120,10 @@ class MainMenu(cmd.Cmd):
             "Use encryption?", self.use_encryption)
         print("")
         print("New Settings:")
-        print("DB Url: {}".format(self.url))
-        print("DB Username: {}".format(self.username))
-        print("DB Password: {}".format(self.password))
-        print("Use encryption: {}".format(self.use_encryption))
+        print(f"DB Url: {self.url}")
+        print(f"DB Username: {self.username}")
+        print(f"DB Password: {self.password}")
+        print(f"Use encryption: {self.use_encryption}")
         print("")
         print("Testing DB Connection")
         self.test_db_conn()
@@ -145,7 +152,7 @@ class MainMenu(cmd.Cmd):
         self.domain = self.m.input_default("Domain", self.domain).upper()
         print("")
         print("New Settings:")
-        print("Domain: {}".format(self.domain))
+        print(f"Domain: {self.domain}")
 
     def do_exit(self, args):
         raise KeyboardInterrupt
@@ -170,10 +177,10 @@ class MainMenu(cmd.Cmd):
 
         print("Resetting Schema")
         for constraint in session.run("CALL db.constraints"):
-            session.run("DROP {}".format(constraint['description']))
+            session.run(f"DROP {constraint['description']}")
 
         for index in session.run("CALL db.indexes"):
-            session.run("DROP {}".format(index['description']))
+            session.run(f"DROP {index['description']}")
 
         session.run(
             "CREATE CONSTRAINT id_constraint ON (c:Base) ASSERT c.objectid IS UNIQUE")
@@ -206,18 +213,15 @@ class MainMenu(cmd.Cmd):
 
     def split_seq(self, iterable, size):
         it = iter(iterable)
-        item = list(itertools.islice(it, size))
-        while item:
+        while item := list(itertools.islice(it, size)):
             yield item
-            item = list(itertools.islice(it, size))
 
     def generate_timestamp(self):
         choice = random.randint(-1, 1)
-        if choice == 1:
-            variation = random.randint(0, 31536000)
-            return self.current_time - variation
-        else:
+        if choice != 1:
             return choice
+        variation = random.randint(0, 31536000)
+        return self.current_time - variation
 
     def generate_data(self):
         if not self.connected:
